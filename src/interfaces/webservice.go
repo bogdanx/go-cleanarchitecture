@@ -38,6 +38,14 @@ func (handler WebserviceHandler) PlaceOrder(res http.ResponseWriter, req *http.R
 	orderId, _ := strconv.Atoi(req.FormValue("orderId"))
 	token := req.FormValue("stripeToken")
 	order, _ := handler.OrderInteractor.GetOrder(userId, orderId)
+
+	charge := ProcessPayment(order, token)
+	chargeAmount := float64(charge.Amount) / 100
+	// order := interactor.OrderRepository.FindById(orderId)
+	io.WriteString(res, fmt.Sprintf("order: %d, costs $%f and charged you %f %s: %s\n", order.Id, order.Value(), chargeAmount, charge.Currency, charge.Status))
+}
+
+func ProcessPayment(order domain.Order, token string) *stripe.Charge {
 	dollaz := uint64(order.Value() * 100)
 	// TODO: Set your secret key: remember to change this to your live secret key in production
 	// See your keys here: https://dashboard.stripe.com/account/apikeys
@@ -55,7 +63,5 @@ func (handler WebserviceHandler) PlaceOrder(res http.ResponseWriter, req *http.R
 	params.SetSource(token)
 
 	charge, _ := charge.New(params)
-
-	// order := interactor.OrderRepository.FindById(orderId)
-	io.WriteString(res, fmt.Sprintf("order: %d, costs $%f and charged you %d %s\n", order.Id, order.Value(), charge.Amount, charge.Currency))
+	return charge
 }
