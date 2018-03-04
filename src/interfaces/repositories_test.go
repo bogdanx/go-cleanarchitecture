@@ -46,6 +46,10 @@ func Test_UserRepository(t *testing.T) {
 	}
 }
 
+func Test_FindById(t *testing.T) {
+	//repo := infrastructure.NewSqliteHandler(dbfileName)DbCustomerRepo()
+}
+
 func Test_OrderRepository(t *testing.T) {
 	dbHandler := infrastructure.NewSqliteHandler("/var/tmp/test2.sqlite")
 	dbHandler.Execute("DROP TABLE users")
