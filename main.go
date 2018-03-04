@@ -1,16 +1,16 @@
 package main
 
 import (
-	"usecases"
-	"interfaces"
 	"infrastructure"
+	"interfaces"
 	"net/http"
+	"usecases"
 )
 
 func main() {
 	dbHandler := infrastructure.NewSqliteHandler("/var/tmp/production.sqlite")
 
-	handlers := make(map[string] interfaces.DbHandler)
+	handlers := make(map[string]interfaces.DbHandler)
 	handlers["DbUserRepo"] = dbHandler
 	handlers["DbCustomerRepo"] = dbHandler
 	handlers["DbItemRepo"] = dbHandler
@@ -27,5 +27,9 @@ func main() {
 	http.HandleFunc("/orders", func(res http.ResponseWriter, req *http.Request) {
 		webserviceHandler.ShowOrder(res, req)
 	})
+	http.HandleFunc("/placeOrder", func(res http.ResponseWriter, req *http.Request) {
+		webserviceHandler.PlaceOrder(res, req)
+	})
+	http.Handle("/", http.FileServer(http.Dir("./static")))
 	http.ListenAndServe(":8080", nil)
 }

@@ -41,7 +41,7 @@ func (order *Order) Add(item Item) error {
 	if !item.Available {
 		return errors.New("Cannot add unavailable items to order")
 	}
-	if order.value()+item.Value > 250.00 {
+	if order.Value()+item.Value > 250.00 {
 		return errors.New(`An order may not exceed
 			a total value of $250.00`)
 	}
@@ -49,7 +49,7 @@ func (order *Order) Add(item Item) error {
 	return nil
 }
 
-func (order *Order) value() (sum float64) {
+func (order *Order) Value() (sum float64) {
 	for i := range order.Items {
 		sum += order.Items[i].Value
 	}

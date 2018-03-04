@@ -22,6 +22,18 @@ type Item struct {
 	Value float64
 }
 
+type Customer struct {
+	Id   int
+	Name string
+}
+
+type Order struct {
+	Id       int
+	Customer Customer
+	Items    []Item
+	Value    float64
+}
+
 type Logger interface {
 	Log(message string) error
 }
@@ -90,9 +102,28 @@ func (interactor *OrderInteractor) Add(userId, orderId, itemId int) error {
 	}
 	interactor.OrderRepository.Store(order)
 	interactor.Logger.Log(fmt.Sprintf(
-		"User added item '%s' (#%i) to order #%i",
+		"User added item '%s' (#%d) to order #%d",
 		item.Name, item.Id, order.Id))
 	return nil
+}
+
+func (interactor *OrderInteractor) GetOrder(userId, orderId int) (domain.Order, error) {
+	// var order Order
+	user := interactor.UserRepository.FindById(userId)
+	order := interactor.OrderRepository.FindById(orderId)
+	if user.Customer.Id != order.Customer.Id {
+		message := "User #%i (customer #%i) "
+		message += "is not allowed to see items "
+		message += "in order #%i (of customer #%i)"
+		err := fmt.Errorf(message,
+			user.Id,
+			user.Customer.Id,
+			order.Id,
+			order.Customer.Id)
+		interactor.Logger.Log(err.Error())
+		return order, err
+	}
+	return order, nil
 }
 
 type AdminOrderInteractor struct {
@@ -133,7 +164,7 @@ func (interactor *AdminOrderInteractor) Add(userId, orderId, itemId int) error {
 	}
 	interactor.OrderRepository.Store(order)
 	interactor.Logger.Log(fmt.Sprintf(
-		"Admin added item '%s' (#%i) to order #%i",
+		"Admin added item '%s' (#%d) to order #%d",
 		item.Name, item.Id, order.Id))
 	return nil
 }
