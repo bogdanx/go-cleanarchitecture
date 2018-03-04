@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"strconv"
 	"usecases"
-	//"github.com/bogdanx/go-cleanarchitecture/src/domain"
+
+	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/charge"
 )
 
 type OrderInteractor interface {
@@ -34,7 +36,26 @@ func (handler WebserviceHandler) ShowOrder(res http.ResponseWriter, req *http.Re
 func (handler WebserviceHandler) PlaceOrder(res http.ResponseWriter, req *http.Request) {
 	userId, _ := strconv.Atoi(req.FormValue("userId"))
 	orderId, _ := strconv.Atoi(req.FormValue("orderId"))
+	token := req.FormValue("stripeToken")
 	order, _ := handler.OrderInteractor.GetOrder(userId, orderId)
+	dollaz := uint64(order.Value() * 100)
+	// TODO: Set your secret key: remember to change this to your live secret key in production
+	// See your keys here: https://dashboard.stripe.com/account/apikeys
+
+	stripe.Key = "sk_test_BQokikJOvBiI2HlWgH4olfQ2"
+
+	// Token is created using Checkout or Elements!
+	// Get the payment token ID submitted by the form:
+
+	// Charge the user's card:
+	params := &stripe.ChargeParams{
+		Amount:   dollaz,
+		Currency: "usd",
+	}
+	params.SetSource(token)
+
+	charge, _ := charge.New(params)
+
 	// order := interactor.OrderRepository.FindById(orderId)
-	io.WriteString(res, fmt.Sprintf("order: %d, costs $%f\n", order.Id, order.Value()))
+	io.WriteString(res, fmt.Sprintf("order: %d, costs $%f and charged you %d %s\n", order.Id, order.Value(), charge.Amount, charge.Currency))
 }
