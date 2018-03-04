@@ -1,4 +1,4 @@
 src/github.com/
 *.swp
 pkg/
-~/go/src/github.com/bogdanx/go-cleanarchitecture/go-cleanarchitecture
+go-cleanarchitecture
