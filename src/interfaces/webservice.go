@@ -43,6 +43,7 @@ func (handler WebserviceHandler) PlaceOrder(res http.ResponseWriter, req *http.R
 	chargeAmount := float64(charge.Amount) / 100
 	// order := interactor.OrderRepository.FindById(orderId)
 	io.WriteString(res, fmt.Sprintf("order: %d, costs $%f and charged you %f %s: %s\n", order.Id, order.Value(), chargeAmount, charge.Currency, charge.Status))
+	// TODO: use a template here to make it beautiful.
 }
 
 func ProcessPayment(order domain.Order, token string) *stripe.Charge {
